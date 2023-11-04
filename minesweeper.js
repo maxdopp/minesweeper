@@ -37,6 +37,7 @@ function createBoard(board) {
     while(board.firstChild){
         board.removeChild(board.firstChild);
     }
+    tiles = [];
     let sideLength = boardSize * tileSize + "px";
     board.style.width = sideLength;
     placeMines();
@@ -56,6 +57,7 @@ function createBoard(board) {
             tile.style.height = tileSize + "px";
             tile.index = [i, j];
             tiles[i].push(tile);
+            tiles[i][j].break = false;
             board.appendChild(tile);
         }
     }
@@ -85,29 +87,34 @@ function updateBoard(event) {
     let tile = event.target;
     determineNumber(tile);
     if(tile.count == 0){
-        //branch method
-        //go out in all four directions and branch off every step
-        //recursion?
-        //end branch when hit a numbered tile
+        tile.break = true;
+        tile.className = "broken";
+        breakTiles(tile);
     }
+    turn++;
 }
 
 function determineNumber(tile) {
     tile.count = 0;
-    for(let i = 0; i < 3; i++){
-        for(let j = 0; j < 3; j++){
-            let x = tile.index[0] - 1 + i;
-            let y = tile.index[1] - 1 + j;
-            if(x < 0 || y < 0 || x >= boardSize || y >= boardSize){
-                continue;
-            }
-            if(mines[x][y]){
-                console.log("mine");
-                tile.count++;
+    if(tile.className != "tile mine"){
+        for(let i = 0; i < 3; i++){
+            for(let j = 0; j < 3; j++){
+                let x = tile.index[0] - 1 + i;
+                let y = tile.index[1] - 1 + j;
+                if(x < 0 || y < 0 || x >= boardSize || y >= boardSize){
+                    continue;
+                }
+                if(mines[x][y]){
+                    console.log("mine");
+                    tile.count++;
+                    tiles[x][y].count++;
+                }
             }
         }
+        if(checkSurroundingTiles(tile) == true){
+            tile.innerHTML = tile.count;
+        }
     }
-    tile.innerHTML = tile.count;
 }
 
 function gameLost(event){
@@ -116,4 +123,80 @@ function gameLost(event){
         updateBoard(event);
     }
     turn++;
+}
+
+function breakTiles(tile) {
+    let count = 0;
+    let step = 1;
+    while(true){
+        count = 0;
+        for(let i = 0; i < 2 * step + 1; i++){
+            let x = tile.index[0] - step + i;
+            let y = tile.index[1] - step;
+            if(x >= 0 && y >= 0 && x < boardSize && y < boardSize){
+                determineNumber(tiles[x][y]);
+                if(tiles[x][y].count == 0 && checkSurroundingTiles(tiles[x][y]) == true){
+                    tiles[x][y].break = true;
+                    tiles[x][y].className = "broken";
+                    count++;
+                }
+            }    
+        }
+        for(let i = 0; i < 2 * (step - 1) + 1; i++){
+            let x = tile.index[0] - step;
+            let y = tile.index[1] - step + 1 + i;
+            if(x >= 0 && y >= 0 && x < boardSize && y < boardSize){
+                determineNumber(tiles[x][y]);
+                if(tiles[x][y].count == 0 && checkSurroundingTiles(tiles[x][y]) == true){
+                    tiles[x][y].break = true;
+                    tiles[x][y].className = "broken";
+                    count++;
+                }
+            }
+        }
+        for(let i = 0; i < 2 * step + 1; i++){
+            let x = tile.index[0] - step + i;
+            let y = tile.index[1] + step;
+            if(x >= 0 && y >= 0 && x < boardSize && y < boardSize){
+                determineNumber(tiles[x][y]);
+                if(tiles[x][y].count == 0 && checkSurroundingTiles(tiles[x][y]) == true){
+                    tiles[x][y].break = true;
+                    tiles[x][y].className = "broken";
+                    count++;
+                }
+            }
+        }
+        for(let i = 0; i < 2 * (step - 1) + 1; i++){
+            let x = tile.index[0] + step;
+            let y = tile.index[1] - step + 1 + i;
+            if(x >= 0 && y >= 0 && x < boardSize && y < boardSize){
+                determineNumber(tiles[x][y]);
+                if(tiles[x][y].count == 0 && checkSurroundingTiles(tiles[x][y]) == true){
+                    tiles[x][y].break = true;
+                    tiles[x][y].className = "broken";
+                    count++;
+                }
+            }
+        }
+        step++;
+        if(count == 0){
+            break;
+        }
+    }
+}
+
+function checkSurroundingTiles(tile) {
+    for(let i = 0; i < 3; i++){
+        for(let j = 0; j < 3; j++){
+            let x = tile.index[0] - 1 + i;
+            let y = tile.index[1] - 1 + j;
+            if(x < 0 || y < 0 || x >= boardSize || y >= boardSize){
+                continue;
+            }
+            if(tiles[x][y].break == true){
+                return true;
+            }
+        }
+    }
+    return false;
 }
