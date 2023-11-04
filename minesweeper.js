@@ -40,121 +40,80 @@ function createBoard(board) {
     let sideLength = boardSize * tileSize + "px";
     board.style.width = sideLength;
     placeMines();
-    for(let i = 0; i < boardSize * boardSize; i++){
-        let tile = document.createElement("div");
-        if(mines[i]){
-            tile.className = "tile mine";
-            tile.addEventListener("click", gameLost);
+    for(let i = 0; i < boardSize; i++){
+        tiles.push([]);
+        for(let j = 0; j < boardSize; j++){
+            let tile = document.createElement("div");
+            if(mines[i][j]){
+                tile.className = "tile mine";
+                tile.addEventListener("click", gameLost);
+            }
+            else{
+                tile.className = "tile safe";
+                tile.addEventListener("click", updateBoard);
+            }
+            tile.style.width = tileSize + "px";
+            tile.style.height = tileSize + "px";
+            tile.index = [i, j];
+            tiles[i].push(tile);
+            board.appendChild(tile);
         }
-        else{
-            tile.className = "tile safe";
-            tile.addEventListener("click", updateBoard);
-        }
-        tile.style.width = tileSize + "px";
-        tile.style.height = tileSize + "px";
-        tile.number = i;
-        tiles.push(tile);
-        board.appendChild(tile);
     }
 }
 
 function placeMines() {
     mines = [];
-    for(let i = 0; i < boardSize * boardSize; i++){
-        mines.push(0);
+    for(let i = 0; i < boardSize; i++){
+        mines.push([]);
+        for(let j = 0; j < boardSize; j++){
+            mines[i].push(0);
+        }
     }
     for(let i = 0; i < mineCount; i++){
-        rand = Math.floor(Math.random() * boardSize * boardSize);
-        if(mines[rand]){
+        rand = [Math.floor(Math.random() * boardSize), Math.floor(Math.random() * boardSize)];
+        if(mines[rand[0]][rand[1]]){
             i--;
         }
         else{
-            mines[rand] = true;
+            mines[rand[0]][rand[1]] = true;
         }
     }
+    console.log(mines);
 }
 
 function updateBoard(event) {
     let tile = event.target;
     determineNumber(tile);
+    if(tile.count == 0){
+        //branch method
+        //go out in all four directions and branch off every step
+        //recursion?
+        //end branch when hit a numbered tile
+    }
 }
 
 function determineNumber(tile) {
     tile.count = 0;
-    //top
-    if(tile.number >= boardSize){
-        if(tile.number % boardSize == 0){
-            for(let i = 0; i < 2; i++){
-                if(mines[tile.number - boardSize + i]){
-                    tile.count++;
-                }
+    for(let i = 0; i < 3; i++){
+        for(let j = 0; j < 3; j++){
+            let x = tile.index[0] - 1 + i;
+            let y = tile.index[1] - 1 + j;
+            if(x < 0 || y < 0 || x >= boardSize || y >= boardSize){
+                continue;
             }
-        }
-        else if((tile.number + 1) % boardSize == 0){
-            for(let i = 0; i < 2; i++){
-                if(mines[tile.number - boardSize - 1 + i]){
-                    tile.count++;
-                }
-            }
-        }
-        else{
-            for(let i = 0; i < 3; i++){
-                if(mines[tile.number - boardSize - 1 + i]){
-                    tile.count++;
-                }
-            }
-        }
-    }
-    //middle
-    if(tile.number % boardSize == 0|| tile.number == 0){
-        if(mines[tile.number + 1]){
-            tile.count++;
-        }
-    }
-    else if((tile.number + 1) % boardSize == 0){
-        if(mines[tile.number - 1]){
-            tile.count++;
-        }
-    }
-    else{
-        if(mines[tile.number + 1]){
-            tile.count++;
-        }
-        if(mines[tile.number - 1]){
-            tile.count++;
-        }
-    }
-    //bottom
-    if(tile.number < (boardSize * boardSize) - boardSize){
-        if(tile.number % boardSize == 0){
-            if(mines[tile.number + boardSize]){
-                tile.count++;
-            }
-            if(mines[tile.number + boardSize + 1]){
+            if(mines[x][y]){
+                console.log("mine");
                 tile.count++;
             }
         }
-        else if((tile.number + 1) % boardSize == 0){
-            if(mines[tile.number + boardSize - 1]){
-                tile.count++;
-            }
-            if(mines[tile.number + boardSize]){
-                tile.count++;
-            }
-        }
-        else{
-            for(let i = 0; i < 3; i++){
-                if(mines[tile.number + boardSize - 1 + i]){
-                    tile.count++;
-                }
-            }
-        }
     }
+    tile.innerHTML = tile.count;
 }
 
 function gameLost(event){
     if(turn == 0){
         event.target.className = "tile safe";
-        updateBoard();
+        updateBoard(event);
     }
+    turn++;
 }
