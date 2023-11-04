@@ -1,0 +1,53 @@
+body{
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#title{
+    margin-block: 20px;
+}
+
+#difficultySelector{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+.difficultyButton{
+    margin-inline: 10px;
+    padding: 10px 20px;
+    font-size: 15px;
+}
+
+.easy:hover{
+    background-color: limegreen;
+}
+
+.medium:hover{
+    background-color: orange;
+}
+
+.hard:hover{
+    background-color: red;
+}
+
+#board{
+    display: flex;
+    flex-wrap: wrap;
+    margin: 30px auto;
+}
+
+.tile{
+    background-color: gray;
+    border: 1px solid black;
+    margin: -1px;
+}
+
+.tile:hover{
+    background-color: lightgray;
+}
+
+.mine{
+    background-color: red;
+}
