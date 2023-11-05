@@ -48,10 +48,10 @@ body{
     background-color: lightgray;
 }
 
-.mine{
+/*.mine{
     background-color: red;
-}
+}*/
 
-.broken{
-    background-color: green;
+.broken, .number{
+    background-color: lightgray;
 }
