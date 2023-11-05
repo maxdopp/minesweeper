@@ -12,6 +12,9 @@ var mediumButton;
 var hardButton;
 
 document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener('contextmenu', event => {
+        event.preventDefault();
+    });
     board = document.getElementById("board");
     easyButton = document.querySelector(".easy");
     mediumButton = document.querySelector(".medium");
@@ -90,14 +93,17 @@ function placeMines() {
 
 function updateBoard(event) {
     let tile = event.target;
+    if(tile.flagged == true){
+        return;
+    }
     determineNumber(tile);
-    if(tile.count == 0 && tile.flagged == false){
+    if(tile.count == 0){
         tile.break = true;
         tile.className = "tile broken";
         breakTiles(tile);
         turn++;
     }
-    else if(tile.flagged == false){
+    else{
         if(turn == 0){
             for(let i = 0; i < 3; i++){
                 for(let j = 0; j < 3; j++){
@@ -129,24 +135,32 @@ function updateBoard(event) {
             tile.className = "tile broken";
             breakTiles(tile);
         }
-        if(tile.number > 0){
+        if(tile.count > 0){
             tile.className = "tile number";
+            tile.innerHTML = tile.count;
         }
         else{
             tile.className = "tile broken";
         }
         tile.break = true;
         tiles[tile.index[0]][tile.index[1]].clicked = true;
-        tile.innerHTML = tile.count;
         turn++;
     }
+    let safeCount = 0;
     for(let i = 0; i < boardSize; i++){
         for(let j = 0; j < boardSize; j++){
+            if(tiles[i][j].className == "tile safe"){
+                safeCount++;
+            }
             determineNumber(tiles[i][j]);
             if(tiles[i][j].count > 0 && mines[i][j] == false && checkSurroundingTiles(tiles[i][j]) == true){
                 tiles[i][j].className = "tile number"
             }
         }
+    }
+    if(safeCount == 0){
+        alert("You Win!");
+        stopGame();
     }
 }
 
@@ -181,12 +195,19 @@ function gameLost(event){
     }
     else if(event.target.flagged == false){
         alert("BOOM!");
-        for(let i = 0; i < boardSize; i++){
-            for(let j = 0; j < boardSize; j++){
-                tiles[i][j].replaceWith(tiles[i][j].cloneNode(true));
-            }
-        }
+        stopGame();
         turn++;
+    }
+}
+
+function stopGame(){
+    for(let i = 0; i < boardSize; i++){
+        for(let j = 0; j < boardSize; j++){
+            if(mines[i][j] == true){
+                tiles[i][j].style.backgroundColor = "red";
+            }
+            tiles[i][j].replaceWith(tiles[i][j].cloneNode(true));
+        }
     }
 }
 
@@ -270,17 +291,12 @@ function checkSurroundingTiles(tile) {
 
 function flag(event) {
     let tile = event.target;
-    if(tile.flagged == false){
+    if(tile.flagged == false && tile.className != "tile number" && tile.className != "tile broken"){
         tile.flagged = true;
-        tile.style.backgroundColor = "green";
+        tile.classList.add("flag");
     }
     else{
         tile.flagged = false;
-        if(tile.className == "tile safe" || tile.className == "tile mine"){
-            tile.style.backgroundColor = "gray";
-        }
-        else if(tile.className == "tile number" || tile.className == "tile broken"){
-            tile.style.backgroundColor = "lightgray";
-        }
+        tile.classList.remove("flag");
     }
 }

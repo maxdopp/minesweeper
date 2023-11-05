@@ -45,7 +45,7 @@ body{
 }
 
 .tile:hover{
-    background-color: lightgray;
+    background-color: rgb(180, 180, 180);
 }
 
 /*.mine{
@@ -54,4 +54,12 @@ body{
 
 .broken, .number{
     background-color: lightgray;
+}
+
+.flag{
+    background-color: green;
+}
+
+.flag:hover{
+    background-color: lightgreen;
 }
