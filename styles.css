@@ -50,6 +50,7 @@ body{
 
 .mine{
     background-image: url("bomb.jpg");
+    background-color: #cccccc;
 }
 
 .broken, .number{
