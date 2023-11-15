@@ -48,11 +48,6 @@ body{
     background-color: rgb(180, 180, 180);
 }
 
-.mine{
-    background-image: url("bomb.jpg");
-    background-color: #cccccc;
-}
-
 .broken, .number{
     background-color: lightgray;
 }
